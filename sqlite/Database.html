@@ -1,0 +1,207 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Library sqlite / Class Database</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="sqlite" data-type="Database">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../sqlite.html">sqlite</a> &rsaquo; <a href="../sqlite/Database.html">Database</a></div>
+        <div class="nav">
+        
+<h2><div class="icon-library"></div><a href="../sqlite.html">sqlite</a></h2><ul class="icon">
+<li><div class="icon-class"></div><strong>Database</strong></li>
+<li><a href="../sqlite/Row.html"><div class="icon-class"></div>Row</a></li>
+<li><a href="../sqlite/Statement.html"><div class="icon-class"></div>Statement</a></li>
+<li><a href="../sqlite/SqliteException.html"><div class="icon-exception"></div>SqliteException</a></li>
+<li><a href="../sqlite/SqliteSyntaxException.html"><div class="icon-exception"></div>SqliteSyntaxException</a></li>
+</ul>
+</div>
+<div class="content">
+        <h2>Class
+            <strong>Database</strong></h2>
+        
+<div class="doc">
+<p>A connection to a SQLite database. </p>
+<p>Each database must be <a class="crossref" href="../sqlite/Database.html#close">close</a>d after use.</p>
+</div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="Database">
+<span class="show-code">Code</span>
+new <strong>Database</strong>(path) <a class="anchor-link" href="#Database"
+              title="Permalink to Database.Database">#</a></h4>
+<div class="doc">
+<p>Opens the specified database file, creating it if it doesn't exist.</p>
+<pre class="source">
+Database(path) : this.path = path {
+  _db = _new(path);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="Database">
+<span class="show-code">Code</span>
+new <strong>Database</strong>.inMemory() <a class="anchor-link" href="#Database"
+              title="Permalink to Database.Database">#</a></h4>
+<div class="doc">
+<p>Creates a new in-memory database, whose contents will not be persisted.</p>
+<pre class="source">
+Database.inMemory() : this(":memory:");
+</pre>
+</div>
+</div>
+<h3>Static Methods</h3>
+<div class="method"><h4 id="get:version">
+<span class="show-code">Code</span>
+<strong>get version</strong>() <a class="anchor-link" href="#get:version"
+              title="Permalink to Database.get version">#</a></h4>
+<div class="doc">
+<p>Returns the version number of the SQLite library.</p>
+<pre class="source">
+static get version() =&gt; _version();
+</pre>
+</div>
+</div>
+<h3>Methods</h3>
+<div class="method"><h4 id="close">
+<span class="show-code">Code</span>
+<a href="../dart_core/void.html">void</a> <strong>close</strong>() <a class="anchor-link" href="#close"
+              title="Permalink to Database.close">#</a></h4>
+<div class="doc">
+<p>Closes the database.</p>
+<p>This should be called exactly once for each instance created.
+After calling this method, all attempts to operate on the database
+will throw <a class="crossref" href="../sqlite/SqliteException.html">SqliteException</a>.</p>
+<pre class="source">
+void close() {
+  _checkOpen();
+  _close(_db);
+  _db = null;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="execute">
+<span class="show-code">Code</span>
+<a href="../dart_core/int.html">int</a> <strong>execute</strong>(<a href="../dart_core/String.html">String</a> statement, [params = const [], <a href="../dart_core/bool.html">bool</a> callback(Row)]) <a class="anchor-link" href="#execute"
+              title="Permalink to Database.execute">#</a></h4>
+<div class="doc">
+<p>Executes a single SQL statement.
+See <a class="crossref" href="../sqlite/Statement.html#execute">Statement.execute</a>.</p>
+<pre class="source">
+int execute(String statement, [params=const [], bool callback(Row)]) {
+  _checkOpen();
+  statement = prepare(statement);
+  try {
+    return statement.execute(params, callback);
+  } finally {
+    statement.close();
+  }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="first">
+<span class="show-code">Code</span>
+<a href="../sqlite/Row.html">Row</a> <strong>first</strong>(<a href="../dart_core/String.html">String</a> statement, [params = const []]) <a class="anchor-link" href="#first"
+              title="Permalink to Database.first">#</a></h4>
+<div class="doc">
+<p>Executes a single SQL statement, and returns the first row.</p>
+<p>Any additional results will be discarded. If there are no results, returns null.</p>
+<pre class="source">
+Row first(String statement, [params = const []]) {
+  _checkOpen();
+  var result = null;
+  execute(statement, params, (row) {
+    result = row;
+    return true;
+  });
+  return result;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="prepare">
+<span class="show-code">Code</span>
+<a href="../sqlite/Statement.html">Statement</a> <strong>prepare</strong>(<a href="../dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
+              title="Permalink to Database.prepare">#</a></h4>
+<div class="doc">
+<p>Creates a new reusable prepared statement.</p>
+<p>
+<span class="param">sql</span> may contain '?' as a placeholder for values. These values can be
+specified when the statement is executed.</p>
+<p>Each prepared statement should be closed after use.</p>
+<pre class="source">
+Statement prepare(String sql) {
+  _checkOpen();
+  return new Statement._internal(_db, sql);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="toString">
+<span class="show-code">Code</span>
+<a href="../dart_core/String.html">String</a> <strong>toString</strong>() <a class="anchor-link" href="#toString"
+              title="Permalink to Database.toString">#</a></h4>
+<div class="doc">
+
+<pre class="source">
+String toString() =&gt; "&lt;Sqlite: ${path}&gt;";
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="transaction">
+<span class="show-code">Code</span>
+<strong>transaction</strong>(callback()) <a class="anchor-link" href="#transaction"
+              title="Permalink to Database.transaction">#</a></h4>
+<div class="doc">
+<p>Executes 
+<span class="param">callback</span> in a transaction, and returns the callback's return value.</p>
+<p>If the callbacks throws an exception, the transaction will be rolled back
+and the exception propagated, otherwise the transaction will be committed.</p>
+<pre class="source">
+transaction(callback()) {
+  _checkOpen();
+  execute("BEGIN");
+  try {
+    var result = callback();
+    execute("COMMIT");
+    return result;
+  } catch (x) {
+    execute("ROLLBACK");
+    throw x;
+  }
+}
+</pre>
+</div>
+</div>
+<h3>Fields</h3>
+<div class="field"><h4 id="path">
+<span class="show-code">Code</span>
+final <a href="../dart_core/String.html">String</a>         <strong>path</strong> <a class="anchor-link"
+            href="#path"
+            title="Permalink to Database.path">#</a>
+        </h4>
+        <div class="doc">
+<p>The location on disk of the database file.</p>
+<pre class="source">
+final String path;
+</pre>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        
+        <div class="footer"></div>
+        <script async src="../client-static.js"></script>
+        </body></html>
+        
